@@ -3,7 +3,7 @@ title: "ChIP Peaks - Exercises"
 output:
   html_document:
     code_folding: show
-    keep_md: true
+    keep_md: false
 ---
 
 # Introduction
