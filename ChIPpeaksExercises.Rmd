@@ -1,0 +1,64 @@
+---
+title: "ChIP Peaks - Exercises"
+output:
+  html_document:
+    code_folding: show
+    keep_md: true
+---
+
+# Introduction
+
+## Import Files
+
+```{r, message=FALSE, warning=FALSE}
+library(rtracklayer)
+library(GenomicRanges)
+
+peaks_factor <- import.bed("peaks/peaks.factor.bed")
+peaks_histone <- import.bed("peaks/peaks.histone.bed")
+
+
+peaks_factor; peaks_histone
+```
+
+## Genomic Ranges
+
+```{r, message=FALSE, warning=FALSE}
+# sorting
+peaks_factor <- sortSeqlevels(peaks_factor)
+peaks_factor <- sort(peaks_factor)
+
+peaks_histone <- sortSeqlevels(peaks_histone)
+peaks_histone <- sort(peaks_histone)
+
+peaks_factor; peaks_histone
+```
+
+```{r, message=FALSE, warning=FALSE}
+# chromosome naming
+seqlevelsStyle(peaks_factor)
+
+# start position
+start(peaks_factor)[1:5]
+
+# strand
+strand(peaks_factor)
+```
+
+
+## Annotation
+
+```{r, message=FALSE, warning=FALSE}
+library(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+
+gene_anno <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+
+gene_anno
+```
+
+# Exercises
+
+
+## 
+
+
