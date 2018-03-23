@@ -8,6 +8,13 @@ output:
 
 # Introduction
 
+## Resources
+
+https://www.bioconductor.org/packages/release/bioc/html/GenomicRanges.html
+
+https://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GRanges_and_GRangesList_slides.pdf
+
+
 ## Import Files
 
 
@@ -144,7 +151,7 @@ strand(peaks_factor)
 ```
 
 
-# Annotation
+## Annotation
 
 
 ```r
@@ -174,9 +181,32 @@ gene_anno
 ##   seqinfo: 1870 sequences (1 circular) from dm6 genome
 ```
 
+
 # Exercises
 
 
-## 
+### Question 1
+
+What is the size distribution of the peaks?
+(histogram)
 
 
+<button class="btn btn-primary" data-toggle="collapse" data-target="#SessionInfo"> Show/Hide </button>  
+<div id="SessionInfo" class="collapse">  
+
+
+
+```r
+hist(width(peaks_factor), breaks=100, xlim = c(0, 200))
+```
+
+<img src="ChIPpeaksExercises_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+
+```r
+hist(width(peaks_histone), breaks=100, xlim = c(0, 5000))
+```
+
+<img src="ChIPpeaksExercises_files/figure-html/unnamed-chunk-5-2.png" style="display: block; margin: auto;" />
+
+
+</div>
