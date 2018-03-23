@@ -1,13 +1,13 @@
-ChIP Peaks - Exercises
+# ChIP Peaks - Exercises
 
 
 # Introduction
 
-## Resources
+### Resources
 
-## Import Files
+### Import Files
 
-## Annotation
+### Annotation
 
 
 
