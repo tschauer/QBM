@@ -58,30 +58,332 @@ strand(peaks_factor)
 ```{r, message=FALSE, warning=FALSE}
 library(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
 
-gene_anno <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+txdb <- TxDb.Dmelanogaster.UCSC.dm6.ensGene
+seqlevelsStyle(txdb)
+
+
+seqlevelsStyle(txdb) <- "Ensembl"
+
+gene_anno <- genes(txdb)
+exon_anno <- reduce(exons(txdb))
 
 gene_anno
 ```
 
+
+
+```{r, message=FALSE, warning=FALSE}
+library(BSgenome.Dmelanogaster.UCSC.dm6)
+
+genome <- BSgenome.Dmelanogaster.UCSC.dm6
+seqlevelsStyle(genome) <- "Ensembl"
+
+seqinfo(genome)
+```
 
 # Exercises
 
 
 ### Question 1
 
-What is the size distribution of the peaks?
+### What is the size distribution of the peaks?
 (histogram)
 
 
-<button class="btn btn-primary" data-toggle="collapse" data-target="#SessionInfo"> Show/Hide </button>  
-<div id="SessionInfo" class="collapse">  
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question1"> Show/Hide </button>  
+<div id="Question1" class="collapse">  
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+par(mfrow=c(2,2), mar=c(4,4,2,2), oma=c(0,0,0,0))
+
+hist(width(peaks_factor), breaks=100, xlim = c(0, 200), col="grey")
+
+hist(width(peaks_histone), breaks=100, xlim = c(0, 5000), col="grey")
+```
+
+</div>
 
 
-```{r, message=FALSE, warning=FALSE, fig.align="center"}
-hist(width(peaks_factor), breaks=100, xlim = c(0, 200))
+### Question 2
 
-hist(width(peaks_histone), breaks=100, xlim = c(0, 5000))
+### What is the chromosomal distribution of the peaks?
+(barplot)
+
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question2"> Show/Hide </button>  
+<div id="Question2" class="collapse">  
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+
+par(mfrow=c(2,2),mar=c(4,4,2,2),oma=c(0,0,0,0))
+
+barplot(table(seqnames(peaks_factor)), ylab="N of peaks")
+barplot(table(seqnames(peaks_factor))/length(peaks_factor), ylab="Fraction")
+
+
+barplot(table(seqnames(peaks_histone)), ylab="N of peaks")
+barplot(table(seqnames(peaks_histone))/length(peaks_histone), ylab="Fraction")
+
+
+```
+
+</div>
+
+
+
+### Question 3
+
+### What is the overlap between histone and factor peaks?
+* subset of histone overlapping factor
+* subset of factor overlapping histone
+* intersect of histone and factor
+
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question3"> Show/Hide </button>  
+<div id="Question3" class="collapse">  
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+
+subsetByOverlaps(peaks_factor, peaks_histone)
+subsetByOverlaps(peaks_histone, peaks_factor)
+
+intersect(peaks_histone, peaks_factor)
+intersect(peaks_factor, peaks_histone)
+
+```
+
+</div>
+
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", echo=FALSE}
+
+
+peaks_subset1 <- subsetByOverlaps(peaks_factor, peaks_histone)
+peaks_subset2 <- subsetByOverlaps(peaks_histone, peaks_factor)
+peaks_intersect <- intersect(peaks_factor, peaks_histone)
+
+peaks_factor_chrX <-  peaks_factor[seqnames(peaks_factor) == "X"]
+peaks_histone_chrX <- peaks_histone[seqnames(peaks_histone) == "X"]
+peaks_intersect_chrX <- peaks_intersect[seqnames(peaks_intersect) == "X"]
+peaks_subset1_chrX <-   peaks_subset1[seqnames(peaks_subset1) == "X"]
+peaks_subset2_chrX <-   peaks_subset2[seqnames(peaks_subset2) == "X"]
+gene_anno_chrX <- gene_anno[seqnames(gene_anno) == "X"]
+exon_anno_chrX <- exon_anno[seqnames(exon_anno) == "X"]
+
+
+par(mar=c(4,1,1,1), oma=c(6,0,2,0), cex.lab=2)
+
+
+plot(c(1.125e7, 1.155e7), c(0,0),
+     type="n", xlab=seqnames(peaks_factor_chrX)[1], ylab="", yaxt="n", xaxt="n", bty="n")
+
+axis(side = 1, seq(1.125e7, 1.155e7, 1e5))
+
+rect(xleft = start(peaks_factor_chrX), 
+     ybottom = 0.75, 
+     xright = end(peaks_factor_chrX), 
+     ytop =  1,
+     lwd=2, border="#009E73", col="#009E73")
+
+
+rect(xleft = start(peaks_histone_chrX), 
+     ybottom = 0.5, 
+     xright = end(peaks_histone_chrX), 
+     ytop =  0.75,
+     lwd=2, border="#D55E00", col="#D55E00")
+
+
+rect(xleft = start(peaks_subset1_chrX), 
+     ybottom = 0, 
+     xright = end(peaks_subset1_chrX), 
+     ytop =  0.25,
+     lwd=2, border="#009E73", col="#009E73")
+
+
+rect(xleft = start(peaks_subset2_chrX), 
+     ybottom = -0.25, 
+     xright = end(peaks_subset2_chrX), 
+     ytop =  0,
+     lwd=2, border="#D55E00", col="#D55E00")
+
+
+rect(xleft = start(peaks_intersect_chrX), 
+     ybottom = -0.25, 
+     xright = end(peaks_intersect_chrX), 
+     ytop =  -0.5,
+     lwd=2, border="#CC79A7", col="#CC79A7")
+
+rect(xleft = start(exon_anno_chrX[strand(exon_anno_chrX) == "+"]), 
+     ybottom = -0.7, 
+     xright = end(exon_anno_chrX[strand(exon_anno_chrX) == "+"]), 
+     ytop =  -0.55,
+     lwd=2, border="#999999", col="#999999")
+
+
+rect(xleft = start(gene_anno_chrX[strand(gene_anno_chrX) == "+"]), 
+     ybottom = -0.625, 
+     xright = end(gene_anno_chrX[strand(gene_anno_chrX) == "+"]), 
+     ytop =  -0.625,
+     lwd=2, border="#999999", col="#999999")
+
+
+rect(xleft = start(exon_anno_chrX[strand(exon_anno_chrX) == "-"]), 
+     ybottom = -0.95, 
+     xright = end(exon_anno_chrX[strand(exon_anno_chrX) == "-"]), 
+     ytop =  -0.8,
+     lwd=2, border="#999999", col="#999999")
+
+
+rect(xleft = start(gene_anno_chrX[strand(gene_anno_chrX) == "-"]), 
+     ybottom = -0.875, 
+     xright = end(gene_anno_chrX[strand(gene_anno_chrX) == "-"]), 
+     ytop =  -0.875,
+     lwd=2, border="#999999", col="#999999")
+
+text(1.1275e7, 0.875, labels = "factor")
+text(1.1275e7, 0.625, labels = "histone")
+text(1.1275e7, 0.125, labels = "subset1")
+text(1.1275e7, -0.125, labels = "subset2")
+text(1.1275e7, -0.375, labels = "intersect")
+
+
+```
+
+
+
+
+### Question 4
+
+### What is the average distance between peaks?
+(average or histogram) <br>
+
+* histone - factor
+* factor - histone
+* histone - genes
+* factor - genes
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question4"> Show/Hide </button>  
+<div id="Question4" class="collapse">  
+
+
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+par(mfrow=c(2,2), mar=c(4,4,2,2), oma=c(0,0,0,0))
+
+hist(log10(mcols(distanceToNearest(peaks_factor, peaks_histone))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - Histone", col="grey")
+
+hist(log10(mcols(distanceToNearest(peaks_histone,peaks_factor))$distance+1), 
+     xlab="Distance [log10 bp]", main="Histone - Factor", col="grey")
+
+
+hist(log10(mcols(distanceToNearest(peaks_factor, gene_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - Genes", col="grey")
+
+hist(log10(mcols(distanceToNearest(peaks_histone, gene_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Histone - Genes", col="grey")
+
+```
+
+</div>
+
+
+
+
+
+### Question 5
+
+### What is the distance of factor peaks to exons, promoters, 5´UTRs, 3´UTs?
+Promoter: TSS +/- 250 bp <br>
+Hint: ?promoters; ?threeUTRsByTranscript etc.
+
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question5"> Show/Hide </button>  
+<div id="Question5" class="collapse">  
+
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+
+promoter_anno <-  promoters(txdb, upstream=250, downstream=250)
+threeUTR_anno <- unlist(threeUTRsByTranscript(txdb))
+fiveUTR_anno <-  unlist(fiveUTRsByTranscript(txdb))
+
+par(mfrow=c(2,2), mar=c(4,4,2,2), oma=c(0,0,0,0))
+
+hist(log10(mcols(distanceToNearest(peaks_factor, exon_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - Exons", col="grey")
+
+hist(log10(mcols(distanceToNearest(peaks_factor, promoter_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - Promoters", col="grey")
+
+hist(log10(mcols(distanceToNearest(peaks_factor, fiveUTR_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - 5´UTR", col="grey")
+
+hist(log10(mcols(distanceToNearest(peaks_factor, threeUTR_anno))$distance+1), 
+     xlab="Distance [log10 bp]", main="Factor - 3´UTR", col="grey")
+
 ```
 
 
 </div>
+
+
+
+### Question 6
+
+### What is the G,A,T,C frequency at the center of factor peaks?
+center: 20 bp (hint: resize) <br>
+get sequence from genome <br>
+
+* letter frequency
+* dinucleotide frequency 
+* oligonucleotide frequency (4-mer) 
+
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#Question6"> Show/Hide </button>  
+<div id="Question6" class="collapse">  
+
+
+```{r, message=FALSE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
+
+peaks_factor_center <- resize(peaks_factor, width = 20, fix = "center")
+
+peak_sequences <- getSeq(genome, peaks_factor_center)
+
+base_counts <- alphabetFrequency(peak_sequences)[,1:4]
+base_freq <- colSums(base_counts)/sum(base_counts)
+
+dinuc_counts <- dinucleotideFrequency(peak_sequences)
+dinuc_freq <-  colSums(dinuc_counts)/sum(dinuc_counts)
+
+oligo_nuc_counts <- oligonucleotideFrequency(peak_sequences, width = 4)
+oligo_nuc_freq <-  colSums(oligo_nuc_counts)/sum(oligo_nuc_counts)
+
+
+par(mfrow=c(2,3), mar=c(4,4,2,2), oma=c(0,0,0,0))
+
+barplot(base_freq, las=2, col="darkgrey", ylab = "Frequency")
+barplot(dinuc_freq[rev(order(dinuc_freq))], las=2, col="darkgrey", ylab = "Frequency")
+barplot(oligo_nuc_freq[rev(order(oligo_nuc_freq))][1:8], las=2, col="darkgrey", ylab = "Frequency")
+
+
+```
+
+
+</div>
+
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
